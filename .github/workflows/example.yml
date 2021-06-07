@@ -1,0 +1,19 @@
+name: Example
+
+on:
+  workflow_dispatch:
+
+jobs:
+  example:
+    timeout-minutes: 3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate random files
+        run: |
+          mkdir /tmp/sftp
+          dd if=/dev/urandom bs=128 count=50000 | split -a 4 -b 128 - /tmp/sftp/file.
+      - name: Run SFTP server
+        run: docker run -v /tmp/sftp:/home/user/sftp -p 2222:22 -d atmoz/sftp user:password:::sftp
+      - name: Run program
+        run: sbt run
